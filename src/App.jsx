@@ -19,6 +19,21 @@ export default class App extends React.Component {
     this.handleMapLoad = this.handleMapLoad.bind(this);
   }
 
+  getSubLayers(lyrObj, lvlCount) {
+    //console.log(JSON.stringify(lyrObj));
+    var lyrArray = [];
+    lyrArray = lyrObj.sublayers.toArray().map((subLayer) => {
+      var tmp = {};
+      tmp["level" + lvlCount] = subLayer;
+      tmp["sublevel" + lvlCount] = [];
+      if (subLayer.sublayers && subLayer.sublayers.length > 0) {
+        tmp["sublevel" + lvlCount] = this.getSubLayers(subLayer, lvlCount + 1);
+      }
+      return tmp;
+    });
+    return lyrArray;
+  }
+
   handleMapLoad(map, view) {
     this.setState({ map, view });
 
@@ -26,66 +41,96 @@ export default class App extends React.Component {
 
     map.layers.toArray().forEach((layer) => {
       if (layer.type === "map-image") {
-        var temp = { oplevel: layer, sublevel: [] };
+        var lvlCount = 0;
+        var temp = {};
+        temp["level" + lvlCount] = layer;
+        temp["sublevel" + lvlCount] = [];
+        lvlCount++;
 
-        layer.allSublayers.toArray().forEach((subLayer) => {
-          temp.sublevel.push(subLayer);
-        });
+        if (layer.sublayers.length > 0) {
+          temp["sublevel" + (lvlCount - 1)] = this.getSubLayers(
+            layer,
+            lvlCount
+          );
+        }
         layerObj.push(temp);
-        console.log(JSON.stringify(layerObj));
       }
     });
 
+    // this.setState({
+    //   layerList: this.layerListTree(layerObj, 0),
+    // });
+
     this.setState({
-      layerList: (
-        <Accordion>
-          {layerObj.length > 0
-            ? layerObj.map((lyr) => {
-                return (
-                  <>
-                    <Accordion.Item eventKey={lyr.oplevel.id}>
-                      <Accordion.Header>
-                        <ListGroupItem key={lyr.oplevel.id}>
-                          <Button
-                            onClick={() => {
-                              //alert(item);
-                              lyr.oplevel.visible = !lyr.oplevel.visible;
-                            }}
-                          >
-                            {lyr.oplevel.title}
-                          </Button>
-                        </ListGroupItem>
-                      </Accordion.Header>
-                      <Accordion.Body>
-                        {lyr.sublevel.map((item) => {
-                          return (
-                            <ListGroupItem key={item.id}>
-                              <Button
-                                onClick={() => {
-                                  //alert(item);
-                                  item.visible = !item.visible;
-                                }}
-                              >
-                                {item.title}
-                              </Button>
-                            </ListGroupItem>
-                          );
-                        })}
-                      </Accordion.Body>
-                    </Accordion.Item>
-                  </>
-                );
-              })
-            : ""}
-        </Accordion>
-      ),
+      layerList: <LayerList LayerObject={layerObj} LevelCount="0"></LayerList>,
     });
+  }
+
+  layerListTree(layerObj, lvlcount) {
+    //console.log(JSON.stringify(layerObj));
+    return (
+      <Accordion>
+        {layerObj.length > 0
+          ? layerObj.map((lyr) => {
+              return (
+                <>
+                  <Accordion.Item eventKey={lyr["level" + lvlcount]["id"]}>
+                    <Accordion.Header>
+                      <ListGroupItem key={lyr["level" + lvlcount]["id"]}>
+                        <Button
+                          onClick={() => {
+                            //alert(item);
+                            lyr["level" + lvlcount]["visible"] =
+                              !lyr["level" + lvlcount]["visible"];
+                          }}
+                        >
+                          {"OP : " + lyr["level" + lvlcount]["title"]}
+                        </Button>
+                      </ListGroupItem>
+                    </Accordion.Header>
+                    <Accordion.Body>
+                      {lyr["sublevel" + lvlcount] &&
+                      lyr["sublevel" + lvlcount].length > 0
+                        ? lyr["sublevel" + lvlcount].map((item) => {
+                            return (
+                              <>
+                                {item["sublevel" + (lvlcount + 1)] &&
+                                item["sublevel" + (lvlcount + 1)].length > 0 ? (
+                                  this.layerListTree(item, lvlcount + 1)
+                                ) : (
+                                  <ListGroupItem
+                                    key={item["level" + (lvlcount + 1)].id}
+                                  >
+                                    <Button
+                                      onClick={() => {
+                                        //alert(item);
+                                        item["level" + (lvlcount + 1)].visible =
+                                          !item["level" + (lvlcount + 1)]
+                                            .visible;
+                                      }}
+                                    >
+                                      {item["level" + (lvlcount + 1)].title}
+                                    </Button>
+                                  </ListGroupItem>
+                                )}
+                              </>
+                            );
+                          })
+                        : ""}
+                    </Accordion.Body>
+                  </Accordion.Item>
+                </>
+              );
+            })
+          : ""}
+      </Accordion>
+    );
   }
 
   render() {
     return (
       <div className="App">
-        <div className="LayerList">
+        <div className="LayerListCSS">
           <ListGroup>{this.state.layerList}</ListGroup>
         </div>
         <WebMap
@@ -93,6 +138,88 @@ export default class App extends React.Component {
           onLoad={this.handleMapLoad}
         />
       </div>
+    );
+  }
+}
+
+class LayerList extends React.Component {
+  // layerObj;
+  // lvlCount;
+
+  constructor(props) {
+    super(props);
+
+    this.layerObj = this.props.LayerObject;
+    this.lvlcount = parseInt(this.props.LevelCount);
+  }
+
+  render() {
+    console.log(this.lvlcount + "  --  " + JSON.stringify(this.layerObj));
+    return (
+      <Accordion>
+        {this.layerObj.length > 0
+          ? this.layerObj.map((lyr) => {
+              return (
+                <>
+                  <Accordion.Item eventKey={lyr["level" + this.lvlcount]["id"]}>
+                    <Accordion.Header>
+                      <ListGroupItem key={lyr["level" + this.lvlcount]["id"]}>
+                        <Button
+                          onClick={() => {
+                            //alert(item);
+                            lyr["level" + this.lvlcount]["visible"] =
+                              !lyr["level" + this.lvlcount]["visible"];
+                          }}
+                        >
+                          {"OP : " + lyr["level" + this.lvlcount]["title"]}
+                        </Button>
+                      </ListGroupItem>
+                    </Accordion.Header>
+                    <Accordion.Body>
+                      {(lyr["sublevel" + this.lvlcount] &&
+                      lyr["sublevel" + this.lvlcount].length) > 0
+                        ? lyr["sublevel" + this.lvlcount].map((item) => {
+                            return (
+                              <>
+                                {(item["sublevel" + (this.lvlcount + 1)] &&
+                                item["sublevel" + (this.lvlcount + 1)].length) >
+                                  0 ? (
+                                  <LayerList
+                                    LayerObject={[item]}
+                                    LevelCount={this.lvlcount + 1}
+                                  ></LayerList>
+                                ) : (
+                                  <ListGroupItem
+                                    key={item["level" + (this.lvlcount + 1)].id}
+                                  >
+                                    <Button
+                                      onClick={() => {
+                                        //alert(item);
+                                        item[
+                                          "level" + (this.lvlcount + 1)
+                                        ].visible =
+                                          !item["level" + (this.lvlcount + 1)]
+                                            .visible;
+                                      }}
+                                    >
+                                      {
+                                        item["level" + (this.lvlcount + 1)]
+                                          .title
+                                      }
+                                    </Button>
+                                  </ListGroupItem>
+                                )}
+                              </>
+                            );
+                          })
+                        : "Empty1"}
+                    </Accordion.Body>
+                  </Accordion.Item>
+                </>
+              );
+            })
+          : "Empty"}
+      </Accordion>
     );
   }
 }
