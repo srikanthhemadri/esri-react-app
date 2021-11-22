@@ -57,74 +57,9 @@ export default class App extends React.Component {
       }
     });
 
-    // this.setState({
-    //   layerList: this.layerListTree(layerObj, 0),
-    // });
-
     this.setState({
       layerList: <LayerList LayerObject={layerObj} LevelCount="0"></LayerList>,
     });
-  }
-
-  layerListTree(layerObj, lvlcount) {
-    //console.log(JSON.stringify(layerObj));
-    return (
-      <Accordion>
-        {layerObj.length > 0
-          ? layerObj.map((lyr) => {
-              return (
-                <>
-                  <Accordion.Item eventKey={lyr["level" + lvlcount]["id"]}>
-                    <Accordion.Header>
-                      <ListGroupItem key={lyr["level" + lvlcount]["id"]}>
-                        <Button
-                          onClick={() => {
-                            //alert(item);
-                            lyr["level" + lvlcount]["visible"] =
-                              !lyr["level" + lvlcount]["visible"];
-                          }}
-                        >
-                          {"OP : " + lyr["level" + lvlcount]["title"]}
-                        </Button>
-                      </ListGroupItem>
-                    </Accordion.Header>
-                    <Accordion.Body>
-                      {lyr["sublevel" + lvlcount] &&
-                      lyr["sublevel" + lvlcount].length > 0
-                        ? lyr["sublevel" + lvlcount].map((item) => {
-                            return (
-                              <>
-                                {item["sublevel" + (lvlcount + 1)] &&
-                                item["sublevel" + (lvlcount + 1)].length > 0 ? (
-                                  this.layerListTree(item, lvlcount + 1)
-                                ) : (
-                                  <ListGroupItem
-                                    key={item["level" + (lvlcount + 1)].id}
-                                  >
-                                    <Button
-                                      onClick={() => {
-                                        //alert(item);
-                                        item["level" + (lvlcount + 1)].visible =
-                                          !item["level" + (lvlcount + 1)]
-                                            .visible;
-                                      }}
-                                    >
-                                      {item["level" + (lvlcount + 1)].title}
-                                    </Button>
-                                  </ListGroupItem>
-                                )}
-                              </>
-                            );
-                          })
-                        : ""}
-                    </Accordion.Body>
-                  </Accordion.Item>
-                </>
-              );
-            })
-          : ""}
-      </Accordion>
-    );
   }
 
   render() {
