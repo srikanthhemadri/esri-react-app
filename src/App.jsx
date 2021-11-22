@@ -38,40 +38,46 @@ export default class App extends React.Component {
 
     this.setState({
       layerList: (
-        <ListGroup>
+        <Accordion>
           {layerObj.length > 0
             ? layerObj.map((lyr) => {
                 return (
                   <>
-                    <ListGroupItem key={lyr.oplevel.id}>
-                      <Button
-                        onClick={() => {
-                          //alert(item);
-                          lyr.oplevel.visible = !lyr.oplevel.visible;
-                        }}
-                      >
-                        {lyr.oplevel.title}
-                      </Button>
-                    </ListGroupItem>
-                    {lyr.sublevel.map((item) => {
-                      return (
-                        <ListGroupItem key={item.id}>
+                    <Accordion.Item eventKey={lyr.oplevel.id}>
+                      <Accordion.Header>
+                        <ListGroupItem key={lyr.oplevel.id}>
                           <Button
                             onClick={() => {
                               //alert(item);
-                              item.visible = !item.visible;
+                              lyr.oplevel.visible = !lyr.oplevel.visible;
                             }}
                           >
-                            {item.title}
+                            {lyr.oplevel.title}
                           </Button>
                         </ListGroupItem>
-                      );
-                    })}
+                      </Accordion.Header>
+                      <Accordion.Body>
+                        {lyr.sublevel.map((item) => {
+                          return (
+                            <ListGroupItem key={item.id}>
+                              <Button
+                                onClick={() => {
+                                  //alert(item);
+                                  item.visible = !item.visible;
+                                }}
+                              >
+                                {item.title}
+                              </Button>
+                            </ListGroupItem>
+                          );
+                        })}
+                      </Accordion.Body>
+                    </Accordion.Item>
                   </>
                 );
               })
             : ""}
-        </ListGroup>
+        </Accordion>
       ),
     });
   }

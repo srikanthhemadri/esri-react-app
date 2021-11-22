@@ -70,4 +70,5 @@ body {
   right:20px;
   top:20px;
   z-index: 500;
+  overflow-y: scroll;
 }
