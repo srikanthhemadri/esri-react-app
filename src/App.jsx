@@ -40,21 +40,18 @@ export default class App extends React.Component {
     var layerObj = [];
 
     map.layers.toArray().forEach((layer) => {
-      if (layer.type === "map-image") {
-        var lvlCount = 0;
-        var temp = {};
-        temp["level" + lvlCount] = layer;
-        temp["sublevel" + lvlCount] = [];
-        lvlCount++;
+      //if (layer.type === "map-image") {
+      var lvlCount = 0;
+      var temp = {};
+      temp["level" + lvlCount] = layer;
+      temp["sublevel" + lvlCount] = [];
+      lvlCount++;
 
-        if (layer.sublayers.length > 0) {
-          temp["sublevel" + (lvlCount - 1)] = this.getSubLayers(
-            layer,
-            lvlCount
-          );
-        }
-        layerObj.push(temp);
+      if (layer.sublayers.length > 0) {
+        temp["sublevel" + (lvlCount - 1)] = this.getSubLayers(layer, lvlCount);
       }
+      layerObj.push(temp);
+      //}
     });
 
     this.setState({
@@ -105,6 +102,8 @@ class LayerList extends React.Component {
                             lyr["level" + this.lvlcount]["visible"] =
                               !lyr["level" + this.lvlcount]["visible"];
                           }}
+                          variant="primary"
+                          size="sm"
                         >
                           {"OP : " + lyr["level" + this.lvlcount]["title"]}
                         </Button>
@@ -112,13 +111,13 @@ class LayerList extends React.Component {
                     </Accordion.Header>
                     <Accordion.Body>
                       {(lyr["sublevel" + this.lvlcount] &&
-                      lyr["sublevel" + this.lvlcount].length) > 0
+                        lyr["sublevel" + this.lvlcount].length) > 0
                         ? lyr["sublevel" + this.lvlcount].map((item) => {
                             return (
                               <>
                                 {(item["sublevel" + (this.lvlcount + 1)] &&
-                                item["sublevel" + (this.lvlcount + 1)].length) >
-                                  0 ? (
+                                  item["sublevel" + (this.lvlcount + 1)]
+                                    .length) > 0 ? (
                                   <LayerList
                                     LayerObject={[item]}
                                     LevelCount={this.lvlcount + 1}
@@ -136,6 +135,8 @@ class LayerList extends React.Component {
                                           !item["level" + (this.lvlcount + 1)]
                                             .visible;
                                       }}
+                                      variant="primary"
+                                      size="sm"
                                     >
                                       {
                                         item["level" + (this.lvlcount + 1)]

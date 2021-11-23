@@ -65,10 +65,10 @@ body {
 .LayerListCSS {
   position:fixed;
   width:400px;
-  height:600px;
+  height:100%;
   background:white;
   right:20px;
-  top:20px;
+  top:10px;
   z-index: 500;
   overflow-y: scroll;
 }
