@@ -22,15 +22,21 @@ export default class App extends React.Component {
   getSubLayers(lyrObj, lvlCount) {
     //console.log(JSON.stringify(lyrObj));
     var lyrArray = [];
-    lyrArray = lyrObj.sublayers.toArray().map((subLayer) => {
-      var tmp = {};
-      tmp["level" + lvlCount] = subLayer;
-      tmp["sublevel" + lvlCount] = [];
-      if (subLayer.sublayers && subLayer.sublayers.length > 0) {
-        tmp["sublevel" + lvlCount] = this.getSubLayers(subLayer, lvlCount + 1);
-      }
-      return tmp;
-    });
+    lyrArray = lyrObj.sublayers
+      .toArray()
+      .reverse()
+      .map((subLayer) => {
+        var tmp = {};
+        tmp["level" + lvlCount] = subLayer;
+        tmp["sublevel" + lvlCount] = [];
+        if (subLayer.sublayers && subLayer.sublayers.length > 0) {
+          tmp["sublevel" + lvlCount] = this.getSubLayers(
+            subLayer,
+            lvlCount + 1
+          );
+        }
+        return tmp;
+      });
     return lyrArray;
   }
 
@@ -39,20 +45,26 @@ export default class App extends React.Component {
 
     var layerObj = [];
 
-    map.layers.toArray().forEach((layer) => {
-      //if (layer.type === "map-image") {
-      var lvlCount = 0;
-      var temp = {};
-      temp["level" + lvlCount] = layer;
-      temp["sublevel" + lvlCount] = [];
-      lvlCount++;
+    map.layers
+      .toArray()
+      .reverse()
+      .forEach((layer) => {
+        //if (layer.type === "map-image") {
+        var lvlCount = 0;
+        var temp = {};
+        temp["level" + lvlCount] = layer;
+        temp["sublevel" + lvlCount] = [];
+        lvlCount++;
 
-      if (layer.sublayers.length > 0) {
-        temp["sublevel" + (lvlCount - 1)] = this.getSubLayers(layer, lvlCount);
-      }
-      layerObj.push(temp);
-      //}
-    });
+        if (layer.sublayers.length > 0) {
+          temp["sublevel" + (lvlCount - 1)] = this.getSubLayers(
+            layer,
+            lvlCount
+          );
+        }
+        layerObj.push(temp);
+        //}
+      });
 
     this.setState({
       layerList: <LayerList LayerObject={layerObj} LevelCount="0"></LayerList>,
@@ -81,6 +93,10 @@ class LayerList extends React.Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      buttonvariant: "primary",
+    };
+
     this.layerObj = this.props.LayerObject;
     this.lvlcount = parseInt(this.props.LevelCount);
   }
@@ -98,9 +114,8 @@ class LayerList extends React.Component {
                       class="accordion-header"
                       id={"lvl" + lyr["level" + this.lvlcount]["id"] + "head"}
                     >
-                      <button
+                      <div
                         class="accordion-button collapsed"
-                        type="button"
                         data-bs-toggle="collapse"
                         data-bs-target={
                           "#" +
@@ -112,19 +127,37 @@ class LayerList extends React.Component {
                         aria-controls={
                           "lvl" + lyr["level" + this.lvlcount]["id"] + "body"
                         }
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                        }}
                       >
                         <Button
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            e.nativeEvent.stopImmediatePropagation();
                             //alert(item);
                             lyr["level" + this.lvlcount]["visible"] =
                               !lyr["level" + this.lvlcount]["visible"];
+                            this.setState({
+                              buttonvariant: lyr["level" + this.lvlcount][
+                                "visible"
+                              ]
+                                ? "primary"
+                                : "outline-primary",
+                            });
                           }}
-                          variant="primary"
+                          variant={
+                            lyr["level" + this.lvlcount]["visible"]
+                              ? "primary"
+                              : "outline-dark"
+                          }
                           size="sm"
                         >
                           {"OP : " + lyr["level" + this.lvlcount]["title"]}
                         </Button>
-                      </button>
+                      </div>
                     </h2>
                     <div
                       id={"lvl" + lyr["level" + this.lvlcount]["id"] + "body"}
@@ -153,15 +186,31 @@ class LayerList extends React.Component {
                                       }
                                     >
                                       <Button
-                                        onClick={() => {
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          e.nativeEvent.stopImmediatePropagation();
                                           //alert(item);
                                           item[
                                             "level" + (this.lvlcount + 1)
                                           ].visible =
                                             !item["level" + (this.lvlcount + 1)]
                                               .visible;
+                                          this.setState({
+                                            buttonvariant: item[
+                                              "level" + (this.lvlcount + 1)
+                                            ]["visible"]
+                                              ? "primary"
+                                              : "outline-primary",
+                                          });
                                         }}
-                                        variant="primary"
+                                        variant={
+                                          item["level" + (this.lvlcount + 1)][
+                                            "visible"
+                                          ]
+                                            ? "primary"
+                                            : "outline-dark"
+                                        }
                                         size="sm"
                                       >
                                         {
