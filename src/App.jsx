@@ -88,14 +88,31 @@ class LayerList extends React.Component {
   render() {
     console.log(this.lvlcount + "  --  " + JSON.stringify(this.layerObj));
     return (
-      <Accordion>
+      <div class="accordion" id={"level" + this.lvlcount + "root"}>
         {this.layerObj.length > 0
           ? this.layerObj.map((lyr) => {
               return (
                 <>
-                  <Accordion.Item eventKey={lyr["level" + this.lvlcount]["id"]}>
-                    <Accordion.Header>
-                      <ListGroupItem key={lyr["level" + this.lvlcount]["id"]}>
+                  <div class="accordion-item">
+                    <h2
+                      class="accordion-header"
+                      id={"lvl" + lyr["level" + this.lvlcount]["id"] + "head"}
+                    >
+                      <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target={
+                          "#" +
+                          "lvl" +
+                          lyr["level" + this.lvlcount]["id"] +
+                          "body"
+                        }
+                        aria-expanded="false"
+                        aria-controls={
+                          "lvl" + lyr["level" + this.lvlcount]["id"] + "body"
+                        }
+                      >
                         <Button
                           onClick={() => {
                             //alert(item);
@@ -107,55 +124,65 @@ class LayerList extends React.Component {
                         >
                           {"OP : " + lyr["level" + this.lvlcount]["title"]}
                         </Button>
-                      </ListGroupItem>
-                    </Accordion.Header>
-                    <Accordion.Body>
-                      {(lyr["sublevel" + this.lvlcount] &&
-                        lyr["sublevel" + this.lvlcount].length) > 0
-                        ? lyr["sublevel" + this.lvlcount].map((item) => {
-                            return (
-                              <>
-                                {(item["sublevel" + (this.lvlcount + 1)] &&
-                                  item["sublevel" + (this.lvlcount + 1)]
-                                    .length) > 0 ? (
-                                  <LayerList
-                                    LayerObject={[item]}
-                                    LevelCount={this.lvlcount + 1}
-                                  ></LayerList>
-                                ) : (
-                                  <ListGroupItem
-                                    key={item["level" + (this.lvlcount + 1)].id}
-                                  >
-                                    <Button
-                                      onClick={() => {
-                                        //alert(item);
-                                        item[
-                                          "level" + (this.lvlcount + 1)
-                                        ].visible =
-                                          !item["level" + (this.lvlcount + 1)]
-                                            .visible;
-                                      }}
-                                      variant="primary"
-                                      size="sm"
-                                    >
-                                      {
-                                        item["level" + (this.lvlcount + 1)]
-                                          .title
+                      </button>
+                    </h2>
+                    <div
+                      id={"lvl" + lyr["level" + this.lvlcount]["id"] + "body"}
+                      class="accordion-collapse collapse"
+                      aria-labelledby={
+                        "lvl" + lyr["level" + this.lvlcount]["id"] + "head"
+                      }
+                    >
+                      <div class="accordion-body">
+                        {(lyr["sublevel" + this.lvlcount] &&
+                          lyr["sublevel" + this.lvlcount].length) > 0
+                          ? lyr["sublevel" + this.lvlcount].map((item) => {
+                              return (
+                                <>
+                                  {(item["sublevel" + (this.lvlcount + 1)] &&
+                                    item["sublevel" + (this.lvlcount + 1)]
+                                      .length) > 0 ? (
+                                    <LayerList
+                                      LayerObject={[item]}
+                                      LevelCount={this.lvlcount + 1}
+                                    ></LayerList>
+                                  ) : (
+                                    <ListGroupItem
+                                      key={
+                                        item["level" + (this.lvlcount + 1)].id
                                       }
-                                    </Button>
-                                  </ListGroupItem>
-                                )}
-                              </>
-                            );
-                          })
-                        : "Empty1"}
-                    </Accordion.Body>
-                  </Accordion.Item>
+                                    >
+                                      <Button
+                                        onClick={() => {
+                                          //alert(item);
+                                          item[
+                                            "level" + (this.lvlcount + 1)
+                                          ].visible =
+                                            !item["level" + (this.lvlcount + 1)]
+                                              .visible;
+                                        }}
+                                        variant="primary"
+                                        size="sm"
+                                      >
+                                        {
+                                          item["level" + (this.lvlcount + 1)]
+                                            .title
+                                        }
+                                      </Button>
+                                    </ListGroupItem>
+                                  )}
+                                </>
+                              );
+                            })
+                          : "Empty1"}
+                      </div>
+                    </div>
+                  </div>
                 </>
               );
             })
           : "Empty"}
-      </Accordion>
+      </div>
     );
   }
 }
